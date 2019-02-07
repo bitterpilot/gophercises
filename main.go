@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
 	csvFilename := flag.String("csv", "problems.csv",
 		"A csv file organized as question, answer")
+	duration := flag.Int("timer", 30, "the allowed time for the quiz")
 	flag.Parse()
 
 	file, err := os.Open(*csvFilename)
@@ -21,18 +23,30 @@ func main() {
 	check(err, "Failed to read csv. Is it formatted correctly")
 
 	problems := parseLines(lines)
+	timer := time.NewTimer(time.Duration(*duration) * time.Second)
+
 	var correct uint
 	for i, problem := range problems {
-		fmt.Printf("Question %d:\t%s = ", i+1, problem.q)
-		var answer string
-		fmt.Scanf("%s", &answer)
 
-		if answer == problem.a {
-			fmt.Println("Correct!")
-			correct++
+		answerCh := make(chan string)
+		go func() {
+			var answer string
+			fmt.Scanf("%s", &answer)
+			answerCh <- answer
+		}()
+
+		fmt.Printf("Question %d:\t%s = ", i+1, problem.q)
+		select {
+		case <-timer.C:
+			fmt.Printf("\n\n%d out of %d correct\n", correct, len(problems))
+			return
+		case answer := <-answerCh:
+			if answer == problem.a {
+				// fmt.Println("Correct!")
+				correct++
+			}
 		}
 	}
-	fmt.Printf("%d out of %d correct\n", correct, len(problems))
 }
 
 type problem struct {
