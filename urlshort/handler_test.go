@@ -1,19 +1,29 @@
 package urlshort
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
-func MapHandlerTest(t *testing.T) {
-
-}
-
-func YAMLHandlerTest(t *testing.T) {
-
-}
-
-func parseYamlTest(t *testing.T) {
+func TestMapHandler(t *testing.T) {
 
 }
 
-func buildMapTest(t *testing.T) {
-	
+func TestYAMLHandler(t *testing.T) {
+
+}
+
+func TestParseYaml(t *testing.T) {
+
+}
+
+func TestBuildMap(t *testing.T) {
+	for _, val := range buildMapCases {
+		got := buildMap(val.input)
+
+		eq := reflect.DeepEqual(got, val.expected)
+		if !eq {
+			t.Fail()
+		}
+	}
 }
