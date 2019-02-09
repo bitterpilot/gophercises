@@ -48,6 +48,7 @@ func YAMLHandler(yamlBytes []byte, fallback http.Handler) (http.HandlerFunc, err
 	return MapHandler(pathsToUrls, fallback), nil
 }
 
+// builds a map[string]string from a slice of pathURL
 func buildMap(pathUrls []pathURL) map[string]string {
 	pathsToUrls := make(map[string]string)
 	for _, pu := range pathUrls {
@@ -56,6 +57,7 @@ func buildMap(pathUrls []pathURL) map[string]string {
 	return pathsToUrls
 }
 
+// takes YAML and un-marshal's it into slice of pathURL
 func parseYaml(data []byte) ([]pathURL, error) {
 	var pathUrls []pathURL
 	err := yaml.Unmarshal(data, &pathUrls)
