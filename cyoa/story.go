@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"text/template"
 )
 
@@ -61,7 +62,21 @@ type handler struct {
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.New("").Parse(DefultHandlerTpl))
 
-	if err := tpl.Execute(w, h.s["intro"]); err != nil {
-		log.Fatalf("%s\n", err)
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
 	}
+
+	// remove leading /
+	path = path[1:]
+
+	// check if path is a actually a chapter and execute if true
+	if chapter, ok := h.s[path]; ok {
+		if err := tpl.Execute(w, chapter); err != nil {
+			log.Printf("%v\n", err)
+		    http.Error(w, "Something went wrong...", http.StatusInternalServerError)
+		}
+		return
+	}
+	http.Error(w, "Chapter not found.", http.StatusNotFound)
 }
