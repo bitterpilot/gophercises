@@ -3,6 +3,9 @@ package cyoa
 import (
 	"encoding/json"
 	"io"
+	"log"
+	"net/http"
+	"text/template"
 )
 
 type Story map[string]Chapter
@@ -27,7 +30,7 @@ func JsonStory(r io.Reader) (Story, error) {
 	return Story, nil
 }
 
-var DefultHandlerTmpl = `
+var DefultHandlerTpl = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -46,3 +49,19 @@ var DefultHandlerTmpl = `
 </body>
 </html>
 `
+
+func NewHandler(s Story) http.Handler {
+	return handler{s}
+}
+
+type handler struct {
+	s Story
+}
+
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tpl := template.Must(template.New("").Parse(DefultHandlerTpl))
+
+	if err := tpl.Execute(w, h.s["intro"]); err != nil {
+		log.Fatalf("%s\n", err)
+	}
+}
