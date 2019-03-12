@@ -21,31 +21,60 @@ var tests = []struct {
 		args: args{
 			r: open("./ex1.html"),
 		},
-		want: []Link{Link{
-			Href: "/other-page",
-			Text: "A link to another page",
-		}},
+		want: []Link{
+			{
+				Href: "/other-page",
+				Text: "A link to another page",
+			},
+		},
 		wantErr: false,
 	}, {
 		name: "ex2",
 		args: args{
 			r: open("./ex2.html"),
 		},
-		want:    nil,
+		want: []Link{
+			{
+				Href: "https://www.twitter.com/joncalhoun",
+				Text: "Check me out on twitter",
+			},
+			{
+				Href: "https://github.com/gophercises",
+				Text: "Gophercises is on",
+			},
+		},
 		wantErr: false,
 	}, {
 		name: "ex3",
 		args: args{
 			r: open("./ex3.html"),
 		},
-		want:    nil,
+		want: []Link{
+			{
+				Href: "#",
+				Text: "Login",
+			},
+			{
+				Href: "/lost",
+				Text: "Lost? Need help?",
+			},
+			{
+				Href: "https://twitter.com/marcusolsson",
+				Text: "@marcusolsson",
+			},
+		},
 		wantErr: false,
 	}, {
 		name: "ex4",
 		args: args{
 			r: open("./ex4.html"),
 		},
-		want:    nil,
+		want: []Link{
+			{
+				Href: "/dog-cat",
+				Text: "dog cat",
+			},
+		},
 		wantErr: false,
 	},
 }
