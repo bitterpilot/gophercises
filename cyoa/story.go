@@ -31,7 +31,13 @@ func JsonStory(r io.Reader) (Story, error) {
 	return Story, nil
 }
 
-var DefultHandlerTpl = `
+func init() {
+	tpl = template.Must(template.New("").Parse(defaultHandlerTpl))
+}
+
+var tpl *template.Template
+
+var defaultHandlerTpl = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,17 +99,19 @@ var DefultHandlerTpl = `
 </html>
 `
 
-func NewHandler(s Story) http.Handler {
-	return handler{s}
+func NewHandler(s Story, t *template.Template) http.Handler {
+	if t == nil {
+		t = tpl
+	}
+	return handler{s, t}
 }
 
 type handler struct {
 	s Story
+	t *template.Template
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	tpl := template.Must(template.New("").Parse(DefultHandlerTpl))
-
 	path := strings.TrimSpace(r.URL.Path)
 	if path == "" || path == "/" {
 		path = "/intro"
