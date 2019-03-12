@@ -107,13 +107,13 @@ func WithTemplate(t *template.Template) HandlerOptions {
 	}
 }
 
-func WithPathFunc(fn func(r *http.Request) string) HandlerOptions{
-	return func(h *handler)  {
+func WithPathFunc(fn func(r *http.Request) string) HandlerOptions {
+	return func(h *handler) {
 		h.pathFn = fn
 	}
 }
 
-func defaultPathFn(r *http.Request) string{
+func defaultPathFn(r *http.Request) string {
 	path := strings.TrimSpace(r.URL.Path)
 	if path == "" || path == "/" {
 		path = "/intro"
@@ -125,8 +125,8 @@ func defaultPathFn(r *http.Request) string{
 
 func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
 	h := handler{
-		s: s,
-		t: tpl,
+		s:      s,
+		t:      tpl,
 		pathFn: defaultPathFn,
 	}
 	for _, opt := range opts {
@@ -136,8 +136,8 @@ func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
 }
 
 type handler struct {
-	s Story
-	t *template.Template
+	s      Story
+	t      *template.Template
 	pathFn func(r *http.Request) string
 }
 
