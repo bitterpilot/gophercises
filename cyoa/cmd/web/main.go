@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 
 	"github.com/bitterpilot/gophercises/cyoa"
 )
@@ -29,7 +30,13 @@ func main() {
 	}
 
 	// start webserver
-	h := cyoa.NewHandler(story, nil)
+
+	// accept defult options
+	// h := cyoa.NewHandler(story)
+
+	// use custom options
+	tpl := template.Must(template.New("").Parse("hello"))
+	h := cyoa.NewHandler(story, cyoa.WithTemplate(tpl))
 	fmt.Printf("Starting the server on: %d\n", *port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), h))
 }

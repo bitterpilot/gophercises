@@ -99,11 +99,23 @@ var defaultHandlerTpl = `
 </html>
 `
 
-func NewHandler(s Story, t *template.Template) http.Handler {
-	if t == nil {
-		t = tpl
+type HandlerOptions func(h *handler)
+
+func WithTemplate(t *template.Template) HandlerOptions {
+	return func(h *handler) {
+		h.t = t
 	}
-	return handler{s, t}
+}
+
+func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
+	h := handler{
+		s: s,
+		t: tpl,
+	}
+	for _, opt := range opts {
+		opt(&h)
+	}
+	return h
 }
 
 type handler struct {
@@ -122,7 +134,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// check if path is a actually a chapter and execute if true
 	if chapter, ok := h.s[path]; ok {
-		if err := tpl.Execute(w, chapter); err != nil {
+		if err := h.t.Execute(w, chapter); err != nil {
 			log.Printf("%v\n", err)
 			http.Error(w, "Something went wrong...", http.StatusInternalServerError)
 		}
