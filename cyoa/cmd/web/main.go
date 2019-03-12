@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/bitterpilot/gophercises/cyoa"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/bitterpilot/gophercises/cyoa"
 )
 
 func main() {
@@ -21,10 +21,9 @@ func main() {
 	}
 
 	//decode file
-	d := json.NewDecoder(f)
-	var Story cyoa.Story
-	if err := d.Decode(&Story); err != nil{
+	Story, err := cyoa.JsonStory(f)
+	if err != nil {
 		log.Fatalf("%s\n", err)
-	} 
-	fmt.Printf("%+v", Story)
+	}
+	fmt.Printf("%+v\n", Story)
 }
