@@ -107,10 +107,27 @@ func WithTemplate(t *template.Template) HandlerOptions {
 	}
 }
 
+func WithPathFunc(fn func(r *http.Request) string) HandlerOptions{
+	return func(h *handler)  {
+		h.pathFn = fn
+	}
+}
+
+func defaultPathFn(r *http.Request) string{
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
+	}
+
+	// remove leading "/" and return
+	return path[1:]
+}
+
 func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
 	h := handler{
 		s: s,
 		t: tpl,
+		pathFn: defaultPathFn,
 	}
 	for _, opt := range opts {
 		opt(&h)
@@ -121,16 +138,11 @@ func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
 type handler struct {
 	s Story
 	t *template.Template
+	pathFn func(r *http.Request) string
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimSpace(r.URL.Path)
-	if path == "" || path == "/" {
-		path = "/intro"
-	}
-
-	// remove leading /
-	path = path[1:]
+	path := h.pathFn(r)
 
 	// check if path is a actually a chapter and execute if true
 	if chapter, ok := h.s[path]; ok {
