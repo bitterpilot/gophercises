@@ -22,13 +22,38 @@ func Parse(r io.Reader) ([]Link, error) {
 	nodes := linkNodes(doc)
 	var links []Link
 	for _, node := range nodes {
-		link := Link{
-			Href: strings.TrimSpace(node.Attr[0].Val),
-			Text: strings.TrimSpace(node.FirstChild.Data),
-		}
-		links = append(links, link)
+		links = append(links, getLink(node))
 	}
 	return links, nil
+}
+
+func getLink(n *html.Node) Link {
+	var link Link
+	// Get Href
+	for _, attr := range n.Attr {
+		if attr.Key == "href" {
+			link.Href = attr.Val
+		}
+	}
+
+	// Get text
+	link.Text = getText(n)
+	return link
+}
+
+func getText(n *html.Node) string {
+	// check for other types of data, if it's just text ie: no child nodes
+	// then immediately return
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+
+	// Iterate through child nodes
+	var text string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		text += getText(c)
+	}
+	return strings.Join(strings.Fields(text), " ")
 }
 
 func linkNodes(n *html.Node) []*html.Node {
