@@ -40,7 +40,7 @@ var tests = []struct {
 			},
 			{
 				Href: "https://github.com/gophercises",
-				Text: "Gophercises is on",
+				Text: "Gophercises is on Github!",
 			},
 		},
 		wantErr: false,
