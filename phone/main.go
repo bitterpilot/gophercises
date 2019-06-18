@@ -1,9 +1,62 @@
 package main
 
-import "bytes"
+import (
+	"bytes"
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
+	_ "github.com/lib/pq"
+)
+
+const (
+	host   = "localhost"
+	port   = 5432
+	user   = "nathan"
+	dbName = "gophercises_phone"
+)
 
 func main() {
+	password := os.Getenv("POSTGRES_PASS")
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable",
+		host, port, user, password)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Failed to open db: %v", err)
+	}
+	if err = resetDb(db, dbName); err != nil {
+		log.Fatalf("Failed to reset db: %v", err)
+	}
+	db.Close()
 
+	psqlInfo = fmt.Sprintf("%s dbname=%s", psqlInfo, dbName)
+	db, err = sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Failed to open db: %v", err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Failed to ping db: %v", err)
+	}
+}
+
+func createDb(db *sql.DB, name string) error {
+	_, err := db.Exec("CREATE DATABASE " + name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func resetDb(db *sql.DB, name string) error {
+	_, err := db.Exec("DROP DATABASE IF EXISTS " + name)
+	if err != nil {
+		return err
+	}
+	return createDb(db, name)
 }
 
 func normalize(phone string) string {
