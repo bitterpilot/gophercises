@@ -41,8 +41,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to Create table db: %v", err)
 	}
+
+	id, err := insertPhone(db, "44555545445")
+	if err != nil {
+		log.Fatalf("Failed to insert phone number: %v", err)
+	}
+
+	fmt.Println(id)
 }
 
+// Database setup details
 func createDb(db *sql.DB, name string) error {
 	_, err := db.Exec("CREATE DATABASE " + name)
 	if err != nil {
@@ -71,6 +79,19 @@ func createPhoneTable(db *sql.DB) error {
 	return err
 }
 
+// Start phone specific database stuff
+func insertPhone(db *sql.DB, phone string) (int, error) {
+	statement := `INSERT INTO phone_numbers(value) VALUES($1) RETURNING id`
+	var id int
+	err := db.QueryRow(statement, phone).Scan(&id)
+	if err != nil {
+		return -1, err
+	}
+
+	return id, nil
+}
+
+// Phone specific
 func normalize(phone string) string {
 	var buf bytes.Buffer
 	for _, r := range phone {
