@@ -78,15 +78,6 @@ func createPhoneTable(db *sql.DB) error {
 	return err
 }
 
-func getPhone(db *sql.DB, id int) (string, error) {
-	var number string
-	err := db.QueryRow("SELECT value FROM phone_numbers WHERE id=$1", id).Scan(&number)
-	if err != nil {
-		return "", err
-	}
-	return number, nil
-}
-
 // Start phone specific database stuff
 func insertPhone(db *sql.DB, phone string) (int, error) {
 	statement := `INSERT INTO phone_numbers(value) VALUES($1) RETURNING id`
@@ -95,8 +86,17 @@ func insertPhone(db *sql.DB, phone string) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-
+	
 	return id, nil
+}
+
+func getPhone(db *sql.DB, id int) (string, error) {
+	var number string
+	err := db.QueryRow("SELECT value FROM phone_numbers WHERE id=$1", id).Scan(&number)
+	if err != nil {
+		return "", err
+	}
+	return number, nil
 }
 
 // Phone specific
