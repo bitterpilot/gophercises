@@ -37,9 +37,9 @@ func main() {
 	}
 	defer db.Close()
 
-	err = db.Ping()
+	err = createPhoneTable(db)
 	if err != nil {
-		log.Fatalf("Failed to ping db: %v", err)
+		log.Fatalf("Failed to Create table db: %v", err)
 	}
 }
 
@@ -57,6 +57,18 @@ func resetDb(db *sql.DB, name string) error {
 		return err
 	}
 	return createDb(db, name)
+}
+
+func createPhoneTable(db *sql.DB) error {
+	statement := `
+		CREATE TABLE IF NOT EXISTS phone_numbers (
+			id SERIAL,
+			value VARCHAR(255)
+		)
+	`
+
+	_, err := db.Exec(statement)
+	return err
 }
 
 func normalize(phone string) string {
