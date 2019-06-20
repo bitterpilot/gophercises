@@ -79,6 +79,11 @@ func createPhoneTable(db *sql.DB) error {
 }
 
 // Start phone specific database stuff
+type phone struct {
+	ID     int
+	Number string
+}
+
 func insertPhone(db *sql.DB, phone string) (int, error) {
 	statement := `INSERT INTO phone_numbers(value) VALUES($1) RETURNING id`
 	var id int
@@ -86,7 +91,7 @@ func insertPhone(db *sql.DB, phone string) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	
+
 	return id, nil
 }
 
@@ -97,6 +102,27 @@ func getPhone(db *sql.DB, id int) (string, error) {
 		return "", err
 	}
 	return number, nil
+}
+
+func allPhones(db *sql.DB) ([]phone, error) {
+	rows, err := db.Query("SELECT id, value FROM phone_numbers")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var phones []phone
+	for rows.Next() {
+		var p phone
+		if err := rows.Scan(&p.ID, &p.Number); err != nil {
+			return nil, err
+		}
+		phones = append(phones, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return phones, nil
 }
 
 // Phone specific
