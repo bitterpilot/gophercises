@@ -21,17 +21,17 @@ func main() {
 	password := os.Getenv("POSTGRES_PASS")
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable",
 		host, port, user, password)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		log.Fatalf("Failed to open db: %v", err)
-	}
-	if err = resetDb(db, dbName); err != nil {
-		log.Fatalf("Failed to reset db: %v", err)
-	}
-	db.Close()
+	// db, err := sql.Open("postgres", psqlInfo)
+	// if err != nil {
+	// 	log.Fatalf("Failed to open db: %v", err)
+	// }
+	// if err = resetDb(db, dbName); err != nil {
+	// 	log.Fatalf("Failed to reset db: %v", err)
+	// }
+	// db.Close()
 
 	psqlInfo = fmt.Sprintf("%s dbname=%s", psqlInfo, dbName)
-	db, err = sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatalf("Failed to open db: %v", err)
 	}
@@ -42,12 +42,11 @@ func main() {
 		log.Fatalf("Failed to Create table db: %v", err)
 	}
 
-	id, err := insertPhone(db, "44555545445")
+	n, err := getPhone(db, 2)
 	if err != nil {
-		log.Fatalf("Failed to insert phone number: %v", err)
+		log.Fatalf("%v", err)
 	}
-
-	fmt.Println(id)
+	fmt.Println(n)
 }
 
 // Database setup details
@@ -77,6 +76,15 @@ func createPhoneTable(db *sql.DB) error {
 
 	_, err := db.Exec(statement)
 	return err
+}
+
+func getPhone(db *sql.DB, id int) (string, error) {
+	var number string
+	err := db.QueryRow("SELECT value FROM phone_numbers WHERE id=$1", id).Scan(&number)
+	if err != nil {
+		return "", err
+	}
+	return number, nil
 }
 
 // Start phone specific database stuff
