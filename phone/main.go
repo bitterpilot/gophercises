@@ -53,7 +53,7 @@ func main() {
 		fmt.Println()
 		number := normalize(p.Number)
 		if number != p.Number {
-			fmt.Println("Updating ...")
+			fmt.Printf("Updating %s ...\n", p.Number)
 		} else {
 			fmt.Println("No Changes required")
 		}
