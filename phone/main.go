@@ -47,6 +47,17 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 	fmt.Println(n)
+
+	manyNs, err := allPhones(db)
+	for _, p := range manyNs {
+		fmt.Println()
+		number := normalize(p.Number)
+		if number != p.Number {
+			fmt.Println("Updating ...")
+		} else {
+			fmt.Println("No Changes required")
+		}
+	}
 }
 
 // Database setup details
